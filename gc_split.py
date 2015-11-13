@@ -19,26 +19,28 @@ def main():
                         help='Filename for low GC records')
     parser.add_argument('-t', '--threshold', type=float, default=50.0,
                         help='GC percentage over which to consider records as high GC (default: 50)')
+    parser.add_argument('--format', default='fasta',
+                        help='Select what fileformat the input files are in')
     parser.add_argument('--version', action='version', version='%(prog)s {}'.format(_version))
 
     args = parser.parse_args()
 
-    records = load_records(args.infiles)
+    records = load_records(args.infiles, args.format)
     high_gc, low_gc = split_by_gc(records, args.threshold)
-    num_high = SeqIO.write(high_gc, args.high, 'fasta')
-    num_low = SeqIO.write(low_gc, args.low, 'fasta')
+    num_high = SeqIO.write(high_gc, args.high, args.format)
+    num_low = SeqIO.write(low_gc, args.low, args.format)
 
     print("Wrote {} high GC and {} low GC records".format(num_high, num_low))
 
 
 
-def load_records(infiles):
+def load_records(infiles, format):
     """Load records specified in infiles and concatenate them"""
 
     records = []
 
     for infile in infiles:
-        records.extend(list(SeqIO.parse(infile, 'fasta')))
+        records.extend(list(SeqIO.parse(infile, format)))
 
     return records
 
